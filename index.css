@@ -1,0 +1,94 @@
+/* Make the background fill the screen */
+.big {
+   width: 100%;
+   height: 100vh;
+   background-image: url(IMG_20210123_0013\ copy44.jpg);
+   background-size: cover;
+   background-position: center;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   overflow: hidden;
+   position: relative;
+}
+
+/* Container for rotating items */
+.home {
+   position: absolute;
+   width: 100vw;
+   height: 100vw;
+   max-width: 600px;
+   max-height: 600px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   transform-origin: center;
+}
+
+/* Default: Desktop Item Size */
+.item {
+   width: 150px;
+   height: 150px;
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   text-align: center;
+}
+
+.item img {
+   width: 100%;
+   height: auto;
+   border-radius: 10px;
+}
+
+.item span {
+   position: absolute;
+   bottom: 10px;
+   left: 50%;
+   transform: translateX(-50%);
+   color: white;
+   font-size: 1.5rem;
+   font-weight: bold;
+   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Hover effects */
+#CUTS:hover, #WORKS:hover, #ABOUT:hover {
+   color: rgb(252, 255, 240);
+   background-color: rgba(102, 173, 240, 0.404);
+   transition: 1s;
+}
+
+/* Media Query: MOBILE Sizing */
+@media (max-width: 768px) {
+   .home {
+      width: 90vw;
+      height: 90vw;
+   }
+
+   .item {
+      width: 90px;
+      height: 90px;
+   }
+}
+
+/* General body styling */
+body {
+   font-family: Arial, sans-serif;
+   margin: 0;
+   padding: 0;
+   overflow: hidden;
+   min-height: 100vh;
+}
+
+html, body {
+   height: 100%;
+}
+
+#otherpic {
+   overflow: visible;
+}

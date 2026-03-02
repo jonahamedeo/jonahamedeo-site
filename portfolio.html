@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="portfolio.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+    <!-- Ambient Snowstorm Audio -->
+    <audio id="ambient-sound" loop>
+        <source src="snow2.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Weather Effects Canvas -->
+    <div class="weather-container">
+        <canvas id="weather-canvas"></canvas>
+    </div>
+
+    <!-- Image Grid -->
+    <section>
+        <div class="portfolio-page">
+            <img class="portfolio-image" src="scibb.jpeg" alt="none">
+            <img class="portfolio-image" src="newposter.jpg" alt="none">
+            <img class="portfolio-image" src="2ndtape.jpg" alt="none">
+            <img class="portfolio-image" src="symboo.jpeg" alt="none">
+            <img class="portfolio-image" src="icewolfn.jpeg" alt="none">
+            <img class="portfolio-image" src="plantwonder.jpeg" alt="none">
+            <img class="portfolio-image" src="blacknwhite37comp.jpg" alt="none">
+            <img class="portfolio-image" src="bathroomtilecom.jpg" alt="none">
+            <img class="portfolio-image" src="heavenoutofsightcom.jpg" alt="none">
+            <img class="portfolio-image" src="AceWebsite44.jpeg" alt="none">
+            <img class="portfolio-image" src="card back44.jpeg" alt="none">
+            <img class="portfolio-image" src="Frog247 44.jpeg" alt="none">
+            <img class="portfolio-image" src="snsail44.jpg" alt="none">
+            <img class="portfolio-image" src="boomorange copy44.jpeg" alt="none">
+            <img class="portfolio-image" src="break bread copy44.jpg" alt="none">
+            <img class="portfolio-image" src="fisheye copy.jpeg" alt="none">
+            <img class="portfolio-image" src="Nightmare in dremland44.jpeg" alt="none">
+            <img class="portfolio-image" src="Rosie44.jpeg" alt="none">
+            <img class="portfolio-image" src="martian peekaboo copy44.jpg" alt="none">
+            <img class="portfolio-image" src="tacknife copy44.jpeg" alt="none"> 
+            <img class="portfolio-image" src="moths44.jpg" alt="none">   
+            <img class="portfolio-image" src="Copy of TeaCupMan (1)44.jpeg" alt="none">   
+        </div>
+    </section>
+
+    <!-- Lightbox Viewer -->
+    <div class="lightbox" id="lightbox">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <!-- Lightbox Script -->
+    <script>
+        document.querySelectorAll('.portfolio-image').forEach(img => {
+            img.addEventListener('click', function () {
+                document.getElementById('lightbox-img').src = this.src;
+                document.getElementById('lightbox').style.display = 'flex';
+            });
+        });
+
+        document.getElementById('lightbox').addEventListener('click', function () {
+            this.style.display = 'none';
+        });
+    </script>
+
+    <!-- Ambient Audio Autoplay -->
+    <script>
+        const audio = document.getElementById("ambient-sound");
+        audio.volume = 0.2;
+
+        audio.play().catch(() => {
+            const enableAudio = () => {
+                audio.play();
+                document.removeEventListener('click', enableAudio);
+                document.removeEventListener('scroll', enableAudio);
+            };
+            document.addEventListener('click', enableAudio, { once: true });
+            document.addEventListener('scroll', enableAudio, { once: true });
+        });
+    </script>
+
+    <!-- Weather Animation Script -->
+    <script src="portfolio.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,134 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: url('dolphin3.webp') no-repeat center center fixed;
+    background-size: cover;
+  }
+  
+  /* Container */
+  .myspace-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Columns */
+  .columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  /* Column Styling */
+  .column {
+    flex: 1 1 300px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    box-sizing: border-box;
+    border: 3px double #6827b3;
+  }
+  
+  /* Left Column */
+  .left-column {
+    max-width: 200px;
+  }
+  
+  .profile-pic {
+    width: 100%;
+    max-width: 600px; /* Increased from ~200px to ~600px */
+    border: none;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  /* Section */
+  .section {
+    margin-bottom: 20px;
+  }
+  
+  /* Thumbnails */
+  .thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid #6827b3;
+  }
+  
+  /* Friends Grid */
+  .friends {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .friend img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 2px solid #6827b3;
+  }
+  
+  .friend p {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .lightbox img {
+    max-width: 90%;
+    max-height: 80%;
+    border: 4px solid white;
+  }
+  
+  .lightbox .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+  }
+  
+  /* Custom Bullet Stars for Details Section */
+  .details-section ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .details-section ul li::before {
+    content: "★ ";
+    color: #6827b3;
+    font-weight: bold;
+    margin-right: 6px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .friends {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
