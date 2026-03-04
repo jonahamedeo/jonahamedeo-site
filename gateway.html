@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="GATEWAY">
+    <title>GATEWAY</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'VT323', 'Courier New', monospace;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 18px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .header-title {
+            font-size: 26px;
+            letter-spacing: 0.3em;
+        }
+        .header-sub {
+            font-size: 14px;
+            color: #555;
+            letter-spacing: 0.1em;
+        }
+
+        /* ── CONTENT AREA ── */
+        .content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── SCREENS ── */
+        .screen {
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .screen.active {
+            display: block;
+        }
+
+        /* ── LEVELS SCREEN ── */
+        .level-item {
+            border-bottom: 1px solid #1c1c1c;
+        }
+        .level-header {
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .level-header:active {
+            background: #111;
+        }
+        .level-name {
+            font-size: 22px;
+            letter-spacing: 0.15em;
+        }
+        .level-meta {
+            font-size: 14px;
+            color: #555;
+            letter-spacing: 0.05em;
+        }
+        .level-episodes {
+            display: none;
+            background: #080808;
+            border-top: 1px solid #1c1c1c;
+        }
+        .level-item.open .level-episodes {
+            display: block;
+        }
+
+        /* ── EPISODE ITEMS ── */
+        .episode-row {
+            padding: 13px 16px 13px 28px;
+            border-bottom: 1px solid #141414;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .episode-row:last-child { border-bottom: none; }
+        .episode-row:active { background: #111; }
+        .episode-check {
+            width: 16px;
+            font-size: 14px;
+            color: #444;
+            flex-shrink: 0;
+        }
+        .episode-check.done { color: #888; }
+        .episode-title {
+            flex: 1;
+            font-size: 18px;
+            line-height: 1.3;
+        }
+        .episode-playing-dot {
+            display: none;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            flex-shrink: 0;
+            animation: blink 1s infinite;
+        }
+        .now-playing .episode-playing-dot { display: inline-block; }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        .coming-soon {
+            padding: 14px 28px;
+            color: #333;
+            font-size: 16px;
+            letter-spacing: 0.1em;
+        }
+
+        /* ── PLAYER SCREEN ── */
+        #screen-player {
+            display: none;
+            flex-direction: column;
+            padding: 20px 16px 16px;
+            gap: 14px;
+            overflow: hidden;
+        }
+        #screen-player.active { display: flex; }
+
+        .player-display {
+            flex: 1;
+            border: 1px solid #2a2a2a;
+            background: #080808;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            min-height: 0;
+        }
+        .player-level-label {
+            font-size: 13px;
+            color: #444;
+            letter-spacing: 0.25em;
+        }
+        .player-track-title {
+            font-size: 22px;
+            line-height: 1.35;
+            color: #ddd;
+            margin-top: 4px;
+        }
+        .player-empty {
+            text-align: center;
+            color: #333;
+            font-size: 18px;
+            letter-spacing: 0.1em;
+            line-height: 2;
+        }
+        .progress-wrap { margin-top: 14px; }
+        .progress-track {
+            width: 100%;
+            height: 2px;
+            background: #222;
+            cursor: pointer;
+            margin-bottom: 6px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            pointer-events: none;
+        }
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #444;
+        }
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #1c1c1c;
+            padding: 4px 0;
+        }
+        .ctrl {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #bbb;
+            font-family: 'VT323', monospace;
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            padding: 14px 4px;
+            cursor: pointer;
+            text-align: center;
+            border-right: 1px solid #1c1c1c;
+        }
+        .ctrl:last-child { border-right: none; }
+        .ctrl:active { background: #111; color: #fff; }
+        .ctrl.big { font-size: 15px; color: #fff; }
+
+        /* ── JOURNAL SCREEN ── */
+        #screen-journal {
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #screen-journal.active { display: flex; }
+        .journal-input-box {
+            padding: 14px;
+            border-bottom: 1px solid #1c1c1c;
+            flex-shrink: 0;
+        }
+        .journal-textarea {
+            width: 100%;
+            background: #080808;
+            border: 1px solid #2a2a2a;
+            color: #ccc;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            padding: 12px;
+            resize: none;
+            height: 90px;
+            outline: none;
+            line-height: 1.4;
+        }
+        .journal-textarea::placeholder { color: #2a2a2a; }
+        .journal-submit-btn {
+            width: 100%;
+            margin-top: 8px;
+            background: none;
+            border: 1px solid #2a2a2a;
+            color: #888;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            letter-spacing: 0.25em;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .journal-submit-btn:active { background: #fff; color: #000; }
+        .journal-entries-list {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .entry-card {
+            padding: 14px 16px;
+            border-bottom: 1px solid #141414;
+        }
+        .entry-ts {
+            font-size: 12px;
+            color: #444;
+            letter-spacing: 0.12em;
+            margin-bottom: 5px;
+        }
+        .entry-body {
+            font-size: 17px;
+            line-height: 1.45;
+            color: #bbb;
+        }
+        .journal-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #2a2a2a;
+            font-size: 17px;
+            letter-spacing: 0.1em;
+            line-height: 2;
+        }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            display: flex;
+            border-top: 1px solid #1c1c1c;
+            flex-shrink: 0;
+        }
+        .nav-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            border-right: 1px solid #1c1c1c;
+            color: #333;
+            font-family: 'VT323', monospace;
+            font-size: 15px;
+            letter-spacing: 0.2em;
+            padding: 13px 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .nav-tab:last-child { border-right: none; }
+        .nav-tab.active { color: #fff; background: #0d0d0d; }
+        .nav-tab:active { background: #111; }
+
+        ::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #222; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-title">GATEWAY</div>
+    <div class="header-sub">THE MONROE INSTITUTE</div>
+</div>
+
+<div class="content">
+
+    <div class="screen active" id="screen-levels">
+        <div id="levelList"></div>
+    </div>
+
+    <div class="screen" id="screen-player">
+        <div class="player-display" id="playerDisplay">
+            <div class="player-empty">NO TRACK SELECTED<br>──<br>CHOOSE AN EPISODE<br>FROM LEVELS</div>
+        </div>
+        <div class="controls-row">
+            <button class="ctrl" onclick="skipPrev()">PREV</button>
+            <button class="ctrl" onclick="seekBack()">-15s</button>
+            <button class="ctrl big" id="playBtn" onclick="togglePlay()">PLAY</button>
+            <button class="ctrl" onclick="seekFwd()">+15s</button>
+            <button class="ctrl" onclick="skipNext()">NEXT</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-journal">
+        <div class="journal-input-box">
+            <textarea class="journal-textarea" id="journalInput" placeholder="ENTER YOUR THOUGHTS..."></textarea>
+            <button class="journal-submit-btn" onclick="saveEntry()">[ LOG ENTRY ]</button>
+        </div>
+        <div class="journal-entries-list" id="entriesList"></div>
+    </div>
+
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-tab active" id="tab-levels" onclick="goTo('levels')">LEVELS</button>
+    <button class="nav-tab" id="tab-player" onclick="goTo('player')">PLAYER</button>
+    <button class="nav-tab" id="tab-journal" onclick="goTo('journal')">JOURNAL</button>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+const BASE = "https://pub-8b68e70abfa141849b048bdb5c7c4a85.r2.dev";
+
+const CATALOG = [
+    {
+        label: "WAVE I — DISCOVERY",
+        episodes: [
+            { id: "W1-01", title: "Orientation",                    file: `${BASE}/Wave%20I%20-%20Discovery/CD1%20-%201%20-%20Orientation.flac` },
+            { id: "W1-02", title: "Introduction to Focus 10",       file: `${BASE}/Wave%20I%20-%20Discovery/CD1%20-%202%20-%20Introduction%20to%20Focus%2010.flac` },
+            { id: "W1-03", title: "Advanced Focus 10",              file: `${BASE}/Wave%20I%20-%20Discovery/CD2%20-%203%20-%20Advanced%20Focus%2010.flac` },
+            { id: "W1-04", title: "Release and Recharge",           file: `${BASE}/Wave%20I%20-%20Discovery/CD2%20-%204%20-%20Release%20and%20Recharge.flac` },
+            { id: "W1-05", title: "Exploration, Sleep",             file: `${BASE}/Wave%20I%20-%20Discovery/CD3%20-%205%20-%20Exploration%2C%20Sleep.flac` },
+            { id: "W1-06", title: "Free Flow 10",                   file: `${BASE}/Wave%20I%20-%20Discovery/CD3%20-%206%20-%20Free%20Flow%2010.flac` },
+        ]
+    },
+    {
+        label: "WAVE II — THRESHOLD",
+        episodes: [
+            { id: "W2-01", title: "Introduction to Focus 12",       file: `${BASE}/Wave%20II%20-%20Threshold/CD1%20-%201%20-%20Introduction%20to%20Focus%2012.flac` },
+            { id: "W2-02", title: "Problem Solving",                file: `${BASE}/Wave%20II%20-%20Threshold/CD1%20-%202%20-%20Problem%20Solving.flac` },
+            { id: "W2-03", title: "One-Month Patterning",           file: `${BASE}/Wave%20II%20-%20Threshold/CD2%20-%203%20-%20One-Month%20Patterning.flac` },
+            { id: "W2-04", title: "Color Breathing",                file: `${BASE}/Wave%20II%20-%20Threshold/CD2%20-%204%20-%20Color%20Breathing.flac` },
+            { id: "W2-05", title: "Energy Bar Tool",                file: `${BASE}/Wave%20II%20-%20Threshold/CD3%20-%205%20-%20Energy%20Bar%20Tool.flac` },
+            { id: "W2-06", title: "Living Body Map",                file: `${BASE}/Wave%20II%20-%20Threshold/CD3%20-%206%20-%20Living%20Body%20Map.flac` },
+        ]
+    },
+    {
+        label: "WAVE III — FREEDOM",
+        episodes: [
+            { id: "W3-01", title: "Lift Off",                       file: `${BASE}/Wave%20III%20-%20Freedom/CD1%20-%201%20-%20Lift%20Off.flac` },
+            { id: "W3-02", title: "Remote Viewing",                 file: `${BASE}/Wave%20III%20-%20Freedom/CD1%20-%202%20-%20Remote%20Viewing.flac` },
+            { id: "W3-03", title: "Vectors",                        file: `${BASE}/Wave%20III%20-%20Freedom/CD2%20-%203%20-%20Vectors.flac` },
+            { id: "W3-04", title: "Five Questions",                 file: `${BASE}/Wave%20III%20-%20Freedom/CD2%20-%204%20-%20Five%20Questions.flac` },
+            { id: "W3-05", title: "Energy Food",                    file: `${BASE}/Wave%20III%20-%20Freedom/CD3%20-%205%20-%20Energy%20Food.flac` },
+            { id: "W3-06", title: "First Stage Separation",         file: `${BASE}/Wave%20III%20-%20Freedom/CD3%20-%206%20-%20First%20Stage%20Separation.flac` },
+        ]
+    },
+    {
+        label: "WAVE IV — ADVENTURE",
+        episodes: [
+            { id: "W4-01", title: "One Year Patterning",            file: `${BASE}/Wave%20IV%20-%20Adventure/CD1%20-%201%20-%20One%20Year%20Patterning.flac` },
+        ]
+    },
+    {
+        label: "WAVE V — EXPLORING FOCUS 15",
+        episodes: [
+            { id: "W5-01", title: "Advanced Focus 12",              file: `${BASE}/Wave%20V%20-%20Exploring%20Focus%2015/CD1%20-%201%20-%20Advanced%20Focus%2012.flac` },
+            { id: "W5-02", title: "Discovering Intuition",          file: `${BASE}/Wave%20V%20-%20Exploring%20Focus%2015/CD1%20-%202%20-%20Discovering%20Intuition.flac` },
+            { id: "W5-03", title: "Exploring Intuition",            file: `${BASE}/Wave%20V%20-%20Exploring%20Focus%2015/CD2%20-%203%20-%20Exploring%20Intuition.flac` },
+            { id: "W5-04", title: "Intro to Focus 15",              file: `${BASE}/Wave%20V%20-%20Exploring%20Focus%2015/CD2%20-%204%20-%20Intro%20to%20Focus%2015.flac` },
+            { id: "W5-05", title: "Mission 15: Creation & Manifestation", file: `${BASE}/Wave%20V%20-%20Exploring%20Focus%2015/CD3%20-%205%20-%20Mission%2015%20Creation%20and%20Manifestation.flac` },
+            { id: "W5-06", title: "Exploring Focus 15",             file: `${BASE}/Wave%20V%20-%20Exploring%20Focus%2015/CD3%20-%206%20-%20Exploring%20Focus%2015.flac` },
+        ]
+    },
+    {
+        label: "WAVE VI — ODYSSEY",
+        episodes: [
+            { id: "W6-01", title: "Sensing Locale 1",               file: `${BASE}/Wave%20VI%20-%20Odyssey/CD1%20-%201%20-%20Sensing%20Locale%201.flac` },
+            { id: "W6-02", title: "Expansion in Locale 1",          file: `${BASE}/Wave%20VI%20-%20Odyssey/CD1%20-%202%20-%20Expansion%20in%20Locale%201.flac` },
+            { id: "W6-03", title: "Point of Departure",             file: `${BASE}/Wave%20VI%20-%20Odyssey/CD2%20-%203%20-%20Point%20of%20Departure.flac` },
+            { id: "W6-04", title: "Nonphysical Friends",            file: `${BASE}/Wave%20VI%20-%20Odyssey/CD2%20-%204%20-%20Nonphysical%20friends.flac` },
+            { id: "W6-05", title: "Movement to Locale 2 — Intro Focus 21", file: `${BASE}/Wave%20VI%20-%20Odyssey/CD3%20-%205%20-%20Movement%20to%20Locale%202%20-%20Intro%20Focus%2021.flac` },
+            { id: "W6-06", title: "Free Flow Journey in Focus 21",  file: `${BASE}/Wave%20VI%20-%20Odyssey/CD3%20-%206%20-%20Free%20Flow%20Journey%20in%20Focus%2021.flac` },
+        ]
+    },
+    {
+        label: "WAVE VII — VOYAGER",
+        episodes: [
+            { id: "W7-01", title: "Intro Focus 23",                 file: `${BASE}/Wave%20VII%20-%20Voyager/CD1%20-%202%20-%20Intro%20Focus%2023.flac` },
+        ]
+    },
+    {
+        label: "WAVE VIII — UNION",
+        episodes: [
+            { id: "W8-01", title: "Special Tour",                   file: `${BASE}/Wave%20VIII%20-%20Union/CD1%20-%201%20-%20Special%20Tour.flac` },
+            { id: "W8-02", title: "Meeting with the Entry Director", file: `${BASE}/Wave%20VIII%20-%20Union/CD1%20-%202%20-%20Meeting%20with%20the%20Entry%20Director.flac` },
+            { id: "W8-03", title: "Educational Opportunities",      file: `${BASE}/Wave%20VIII%20-%20Union/CD2%20-%203%20-%20Educational%20Opportunities.flac` },
+            { id: "W8-04", title: "Healing and Regeneration Center", file: `${BASE}/Wave%20VIII%20-%20Union/CD2%20-%204%20-%20Healing%20and%20Regeneration%20Center.flac` },
+            { id: "W8-05", title: "Planning Center",                file: `${BASE}/Wave%20VIII%20-%20Union/CD3%20-%205%20-%20Planning%20Center.flac` },
+            { id: "W8-06", title: "Coordination Area",              file: `${BASE}/Wave%20VIII%20-%20Union/CD3%20-%206%20-%20Coordination%20Area.flac` },
+            { id: "W8-07", title: "Inner Earth",                    file: `${BASE}/Wave%20VIII%20-%20Union/CD4%20-%207%20-%20Inner%20Earth.flac` },
+            { id: "W8-08", title: "The Absolute",                   file: `${BASE}/Wave%20VIII%20-%20Union/CD4%20-%208%20-%20The%20Absolute.flac` },
+        ]
+    },
+    {
+        label: "LUCID DREAMING",
+        episodes: [
+            { id: "LD-01", title: "Exercise 1",                     file: `${BASE}/Lucid%20Dreaming/Hemi-Sync%20-%20Lucid%20Dreaming%20Series%20DVD%20-%20Exercise%201.flac` },
+            { id: "LD-02", title: "Exercise 2",                     file: `${BASE}/Lucid%20Dreaming/Hemi-Sync%20-%20Lucid%20Dreaming%20Series%20DVD%20-%20Exercise%202.flac` },
+            { id: "LD-03", title: "Exercise 3",                     file: `${BASE}/Lucid%20Dreaming/Hemi-Sync%20-%20Lucid%20Dreaming%20Series%20DVD%20-%20Exercise%203.flac` },
+            { id: "LD-04", title: "Exercise 4",                     file: `${BASE}/Lucid%20Dreaming/Hemi-Sync%20-%20Lucid%20Dreaming%20Series%20DVD%20-%20Exercise%204.flac` },
+        ]
+    }
+];
+
+// ── STATE ──
+const audio   = document.getElementById('audio');
+let currentId = localStorage.getItem('gw_current') || null;
+let playing   = false;
+let completed = JSON.parse(localStorage.getItem('gw_done')    || '[]');
+let positions = JSON.parse(localStorage.getItem('gw_pos')     || '{}');
+let journal   = JSON.parse(localStorage.getItem('gw_journal') || '[]');
+
+// ── NAVIGATION ──
+function goTo(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    document.getElementById('tab-' + screen).classList.add('active');
+}
+
+// ── LEVELS ──
+function renderLevels() {
+    const container = document.getElementById('levelList');
+    container.innerHTML = '';
+    CATALOG.forEach((wave, wi) => {
+        const done  = wave.episodes.filter(e => completed.includes(e.id)).length;
+        const total = wave.episodes.length;
+        const div   = document.createElement('div');
+        div.className = 'level-item';
+        div.id = 'wave-' + wi;
+        const rows = wave.episodes.map(ep => {
+            const isDone    = completed.includes(ep.id);
+            const isCurrent = currentId === ep.id;
+            return `<div class="episode-row ${isCurrent ? 'now-playing' : ''}"
+                         onclick="playEp('${ep.id}')">
+                <span class="episode-check ${isDone ? 'done' : ''}">${isDone ? '✓' : '·'}</span>
+                <span class="episode-title">${ep.title}</span>
+                <span class="episode-playing-dot"></span>
+            </div>`;
+        }).join('');
+        div.innerHTML = `
+            <div class="level-header" onclick="toggleWave(${wi})">
+                <span class="level-name">${wave.label}</span>
+                <span class="level-meta">${done}/${total} ▾</span>
+            </div>
+            <div class="level-episodes">${rows || '<div class="coming-soon">-- COMING SOON --</div>'}</div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function toggleWave(i) {
+    const el = document.getElementById('wave-' + i);
+    const wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.level-item').forEach(l => l.classList.remove('open'));
+    if (!wasOpen) el.classList.add('open');
+}
+
+// ── PLAYER ──
+function findEp(id) {
+    for (const wave of CATALOG) {
+        const ep = wave.episodes.find(e => e.id === id);
+        if (ep) return { ep, wave };
+    }
+    return null;
+}
+
+function playEp(id) {
+    const found = findEp(id);
+    if (!found) return;
+    if (currentId && currentId !== id && !isNaN(audio.currentTime)) {
+        positions[currentId] = audio.currentTime;
+        savePos();
+    }
+    currentId = id;
+    localStorage.setItem('gw_current', id);
+    audio.src = found.ep.file;
+    audio.load();
+    const savedTime = positions[id] || 0;
+    audio.addEventListener('loadedmetadata', function onMeta() {
+        audio.removeEventListener('loadedmetadata', onMeta);
+        if (savedTime > 0 && savedTime < audio.duration - 3) {
+            audio.currentTime = savedTime;
+        }
+        audio.play().catch(() => {});
+    }, { once: true });
+    renderLevels();
+    updatePlayerDisplay();
+    goTo('player');
+}
+
+function togglePlay() {
+    if (!currentId) return;
+    if (playing) { audio.pause(); }
+    else {
+        if (!audio.src || audio.src === window.location.href) {
+            const found = findEp(currentId);
+            if (found) { audio.src = found.ep.file; audio.load(); }
+        }
+        audio.play().catch(() => {});
+    }
+}
+
+function seekBack() { audio.currentTime = Math.max(0, audio.currentTime - 15); }
+function seekFwd()  { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 15); }
+
+function skipPrev() {
+    const all = CATALOG.flatMap(w => w.episodes);
+    const i   = all.findIndex(e => e.id === currentId);
+    if (i > 0) playEp(all[i - 1].id);
+}
+function skipNext() {
+    const all = CATALOG.flatMap(w => w.episodes);
+    const i   = all.findIndex(e => e.id === currentId);
+    if (i >= 0 && i < all.length - 1) playEp(all[i + 1].id);
+}
+
+audio.addEventListener('play',  () => { playing = true;  updatePlayerDisplay(); });
+audio.addEventListener('pause', () => { playing = false; updatePlayerDisplay(); });
+
+audio.addEventListener('timeupdate', () => {
+    const fill = document.getElementById('pFill');
+    const cur  = document.getElementById('pCur');
+    const dur  = document.getElementById('pDur');
+    if (fill) fill.style.width = ((audio.currentTime / (audio.duration || 1)) * 100) + '%';
+    if (cur)  cur.textContent  = fmt(audio.currentTime);
+    if (dur)  dur.textContent  = fmt(audio.duration);
+    if (currentId && Math.floor(audio.currentTime) % 10 === 0 && audio.currentTime > 0) {
+        positions[currentId] = audio.currentTime;
+        savePos();
+    }
+});
+
+audio.addEventListener('ended', () => {
+    if (currentId && !completed.includes(currentId)) {
+        completed.push(currentId);
+        localStorage.setItem('gw_done', JSON.stringify(completed));
+        delete positions[currentId];
+        savePos();
+    }
+    playing = false;
+    renderLevels();
+    skipNext();
+});
+
+function savePos() { localStorage.setItem('gw_pos', JSON.stringify(positions)); }
+
+function fmt(s) {
+    if (!s || isNaN(s)) return '--:--';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+}
+
+function updatePlayerDisplay() {
+    const box = document.getElementById('playerDisplay');
+    const btn = document.getElementById('playBtn');
+    if (!currentId) {
+        box.innerHTML = `<div class="player-empty">NO TRACK SELECTED<br>──<br>CHOOSE AN EPISODE<br>FROM LEVELS</div>`;
+        if (btn) btn.textContent = 'PLAY';
+        return;
+    }
+    const found = findEp(currentId);
+    if (!found) return;
+    btn.textContent = playing ? 'PAUSE' : 'PLAY';
+    box.innerHTML = `
+        <div class="player-level-label">${found.wave.label}</div>
+        <div class="player-track-title">${found.ep.title}</div>
+        <div class="progress-wrap">
+            <div class="progress-track" onclick="seekClick(event, this)">
+                <div class="progress-fill" id="pFill"></div>
+            </div>
+            <div class="time-row">
+                <span id="pCur">--:--</span>
+                <span id="pDur">--:--</span>
+            </div>
+        </div>
+    `;
+}
+
+function seekClick(e, bar) {
+    const rect  = bar.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    if (audio.duration) audio.currentTime = ratio * audio.duration;
+}
+
+// ── JOURNAL ──
+function saveEntry() {
+    const input = document.getElementById('journalInput');
+    const text  = input.value.trim();
+    if (!text) return;
+    const now   = new Date();
+    const stamp = now.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+                + '  '
+                + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    journal.unshift({ id: Date.now(), ts: stamp, text });
+    localStorage.setItem('gw_journal', JSON.stringify(journal));
+    input.value = '';
+    renderJournal();
+}
+
+function renderJournal() {
+    const list = document.getElementById('entriesList');
+    if (journal.length === 0) {
+        list.innerHTML = `<div class="journal-empty">NO ENTRIES YET<br>──<br>YOUR REFLECTIONS<br>WILL APPEAR HERE</div>`;
+        return;
+    }
+    list.innerHTML = journal.map(e => `
+        <div class="entry-card">
+            <div class="entry-ts">${e.ts}</div>
+            <div class="entry-body">${e.text.replace(/\n/g, '<br>')}</div>
+        </div>
+    `).join('');
+}
+
+// ── INIT ──
+renderLevels();
+renderJournal();
+if (currentId) updatePlayerDisplay();
+</script>
+</body>
+</html>
